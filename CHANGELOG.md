@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated README.md with Docker, CI/CD, and development documentation
 - Renamed package to "drawfish" in package.json
 
+### Fixed
+
+- Docker tag generation in GitHub Actions workflow (invalid tag format on version tags)
+
 ### Security
 
 - Non-root Docker user for improved container security
