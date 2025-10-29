@@ -1,4 +1,4 @@
-# AI Mermaid Diagram Generator
+# DrawFish - An AI-Powered Mermaid Diagram Generator
 
 A powerful web application that uses AI to generate Mermaid diagrams from natural language descriptions. Supports multiple AI providers including Ollama, LM Studio, Azure OpenAI, Amazon Bedrock, and Google Vertex AI.
 
