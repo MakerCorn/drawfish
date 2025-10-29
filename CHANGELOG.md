@@ -7,16 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-10-29
+
 ### Added
 
 - ESLint configuration for code quality checks
 - Prettier configuration for consistent code formatting
-- npm scripts for linting and validation
+- npm scripts for linting and validation (lint, lint:fix, format, format:check, validate)
 - Docker support with multi-stage builds
-- GitHub Actions workflow for automated Docker image builds
+- Dockerfile with Alpine Linux, Chromium for Puppeteer, and non-root user
+- .dockerignore for optimized builds
+- GitHub Actions workflow for automated Docker image builds (multi-platform)
 - GitHub Actions workflow for automated releases
-- Pre-commit validation script
-- CHANGELOG.md for tracking changes
+- Pre-commit validation script (scripts/pre-commit.sh)
+- CHANGELOG.md for tracking changes (Keep a Changelog format)
+- CONTRIBUTING.md with development guidelines
+- SETUP_SUMMARY.md with implementation documentation
+- Health check in Docker container
+
+### Changed
+
+- Formatted all code with Prettier
+- Fixed all ESLint errors across codebase
+- Updated README.md with Docker, CI/CD, and development documentation
+- Renamed package to "drawfish" in package.json
+
+### Security
+
+- Non-root Docker user for improved container security
+- Build provenance attestation in CI/CD
 
 ## [1.0.0] - 2025-10-29
 
@@ -55,5 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment variable configuration
 - No credentials stored in code
 
-[Unreleased]: https://github.com/yourusername/drawfish/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/yourusername/drawfish/releases/tag/v1.0.0
+[Unreleased]: https://github.com/MakerCorn/drawfish/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/MakerCorn/drawfish/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/MakerCorn/drawfish/releases/tag/v1.0.0
