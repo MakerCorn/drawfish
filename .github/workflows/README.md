@@ -265,7 +265,6 @@ Defined in workflows:
    ```
 
 2. **Use semantic versioning** for tags:
-
    - Major: Breaking changes (v2.0.0)
    - Minor: New features (v1.1.0)
    - Patch: Bug fixes (v1.0.1)

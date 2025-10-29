@@ -1,4 +1,4 @@
-import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
+import { AzureOpenAI } from 'openai';
 
 export class AzureProvider {
   constructor(config) {
@@ -10,16 +10,20 @@ export class AzureProvider {
       throw new Error('Azure OpenAI requires endpoint, apiKey, and deployment');
     }
 
-    this.client = new OpenAIClient(this.endpoint, new AzureKeyCredential(this.apiKey));
+    this.client = new AzureOpenAI({
+      endpoint: this.endpoint,
+      apiKey: this.apiKey,
+      apiVersion: '2024-08-01-preview'
+    });
   }
 
   async generateDiagram(description) {
     const prompt = this.buildPrompt(description);
 
     try {
-      const response = await this.client.getChatCompletions(
-        this.deployment,
-        [
+      const response = await this.client.chat.completions.create({
+        model: this.deployment,
+        messages: [
           {
             role: 'system',
             content:
@@ -30,11 +34,9 @@ export class AzureProvider {
             content: prompt
           }
         ],
-        {
-          temperature: 0.7,
-          maxTokens: 2000
-        }
-      );
+        temperature: 0.7,
+        max_tokens: 2000
+      });
 
       const mermaidCode = this.extractMermaidCode(response.choices[0].message.content);
       return mermaidCode;

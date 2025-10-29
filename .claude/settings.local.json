@@ -13,7 +13,15 @@
       "Bash(npm run format:check:*)",
       "Bash(npm run format:*)",
       "Bash(npm run validate:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm install:*)",
+      "Bash(timeout 5 npm start)",
+      "Bash(gtimeout 5 npm start)",
+      "Bash(node:*)",
+      "Bash(npm info:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

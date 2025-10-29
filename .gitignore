@@ -15,3 +15,5 @@ yarn-error.log*
 dist/
 build/
 .cache/
+.claude/
+.claude/settings.local.json
