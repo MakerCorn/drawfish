@@ -3,7 +3,17 @@
     "allow": [
       "Bash(npm install)",
       "Bash(npm start)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(awk:*)",
+      "Bash(chmod:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run validate:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

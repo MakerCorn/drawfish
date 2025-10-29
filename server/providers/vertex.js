@@ -1,90 +1,101 @@
 import { VertexAI } from '@google-cloud/vertexai';
 
 export class VertexProvider {
-    constructor(config) {
-        this.projectId = config.projectId;
-        this.location = config.location || 'us-central1';
-        this.model = config.model || 'gemini-pro';
+  constructor(config) {
+    this.projectId = config.projectId;
+    this.location = config.location || 'us-central1';
+    this.model = config.model || 'gemini-pro';
 
-        if (!this.projectId) {
-            throw new Error('Google Vertex AI requires projectId');
-        }
-
-        this.vertexAI = new VertexAI({
-            project: this.projectId,
-            location: this.location
-        });
-
-        this.generativeModel = this.vertexAI.getGenerativeModel({
-            model: this.model
-        });
+    if (!this.projectId) {
+      throw new Error('Google Vertex AI requires projectId');
     }
 
-    async generateDiagram(description) {
-        const prompt = this.buildPrompt(description);
+    this.vertexAI = new VertexAI({
+      project: this.projectId,
+      location: this.location
+    });
 
-        try {
-            const request = {
-                contents: [
-                    {
-                        role: 'user',
-                        parts: [{ text: prompt }]
-                    }
-                ],
-                generationConfig: {
-                    temperature: 0.7,
-                    topP: 0.9,
-                    maxOutputTokens: 2000
-                }
-            };
+    this.generativeModel = this.vertexAI.getGenerativeModel({
+      model: this.model
+    });
+  }
 
-            const response = await this.generativeModel.generateContent(request);
-            const generatedText = response.response.candidates[0].content.parts[0].text;
+  async generateDiagram(description) {
+    const prompt = this.buildPrompt(description);
 
-            const mermaidCode = this.extractMermaidCode(generatedText);
-            return mermaidCode;
-
-        } catch (error) {
-            console.error('Vertex AI error:', error.message);
-            throw new Error(`Vertex AI generation failed: ${error.message}`);
+    try {
+      const request = {
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.9,
+          maxOutputTokens: 2000
         }
-    }
+      };
 
-    buildPrompt(description) {
-        return `You are a Mermaid diagram expert. Generate ONLY valid Mermaid diagram code based on the user's description. Do not include any explanations, comments, or markdown code blocks. Return only the raw Mermaid syntax.
+      const response = await this.generativeModel.generateContent(request);
+      const generatedText = response.response.candidates[0].content.parts[0].text;
+
+      const mermaidCode = this.extractMermaidCode(generatedText);
+      return mermaidCode;
+    } catch (error) {
+      console.error('Vertex AI error:', error.message);
+      throw new Error(`Vertex AI generation failed: ${error.message}`);
+    }
+  }
+
+  buildPrompt(description) {
+    return `You are a Mermaid diagram expert. Generate ONLY valid Mermaid diagram code based on the user's description. Do not include any explanations, comments, or markdown code blocks. Return only the raw Mermaid syntax.
 
 User description: ${description}
 
 Generate the Mermaid diagram code now:`;
-    }
+  }
 
-    extractMermaidCode(response) {
-        // Remove markdown code blocks if present
-        let code = response.trim();
+  extractMermaidCode(response) {
+    // Remove markdown code blocks if present
+    let code = response.trim();
 
-        // Remove ```mermaid and ``` markers
-        code = code.replace(/```mermaid\s*/gi, '');
-        code = code.replace(/```\s*/g, '');
+    // Remove ```mermaid and ``` markers
+    code = code.replace(/```mermaid\s*/gi, '');
+    code = code.replace(/```\s*/g, '');
 
-        // Get the first line to determine diagram type
-        const lines = code.split('\n');
-        const firstLine = lines[0].trim();
+    // Get the first line to determine diagram type
+    const lines = code.split('\n');
+    const firstLine = lines[0].trim();
 
-        // If first line doesn't start with a valid diagram type, try to find it
-        const validTypes = ['graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram',
-                           'erDiagram', 'gantt', 'pie', 'gitGraph', 'journey', 'mindmap', 'timeline'];
+    // If first line doesn't start with a valid diagram type, try to find it
+    const validTypes = [
+      'graph',
+      'flowchart',
+      'sequenceDiagram',
+      'classDiagram',
+      'stateDiagram',
+      'erDiagram',
+      'gantt',
+      'pie',
+      'gitGraph',
+      'journey',
+      'mindmap',
+      'timeline'
+    ];
 
-        if (!validTypes.some(type => firstLine.startsWith(type))) {
-            // Try to find the diagram type in the response
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (validTypes.some(type => line.startsWith(type))) {
-                    code = lines.slice(i).join('\n');
-                    break;
-                }
-            }
+    if (!validTypes.some(type => firstLine.startsWith(type))) {
+      // Try to find the diagram type in the response
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (validTypes.some(type => line.startsWith(type))) {
+          code = lines.slice(i).join('\n');
+          break;
         }
-
-        return code.trim();
+      }
     }
+
+    return code.trim();
+  }
 }

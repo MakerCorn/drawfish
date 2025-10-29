@@ -25,64 +25,63 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Provider factory
 function getProvider(settings) {
-    const provider = settings.provider;
-    const config = settings[provider];
+  const provider = settings.provider;
+  const config = settings[provider];
 
-    switch (provider) {
-        case 'ollama':
-            return new OllamaProvider(config);
-        case 'lmstudio':
-            return new LMStudioProvider(config);
-        case 'azure':
-            return new AzureProvider(config);
-        case 'bedrock':
-            return new BedrockProvider(config);
-        case 'vertex':
-            return new VertexProvider(config);
-        default:
-            throw new Error(`Unknown provider: ${provider}`);
-    }
+  switch (provider) {
+    case 'ollama':
+      return new OllamaProvider(config);
+    case 'lmstudio':
+      return new LMStudioProvider(config);
+    case 'azure':
+      return new AzureProvider(config);
+    case 'bedrock':
+      return new BedrockProvider(config);
+    case 'vertex':
+      return new VertexProvider(config);
+    default:
+      throw new Error(`Unknown provider: ${provider}`);
+  }
 }
 
 // Generate diagram endpoint
 app.post('/api/generate', async (req, res) => {
-    try {
-        const { description, settings } = req.body;
+  try {
+    const { description, settings } = req.body;
 
-        if (!description) {
-            return res.status(400).json({ error: 'Description is required' });
-        }
-
-        if (!settings || !settings.provider) {
-            return res.status(400).json({ error: 'Provider settings are required' });
-        }
-
-        const provider = getProvider(settings);
-        const mermaidCode = await provider.generateDiagram(description);
-
-        res.json({ mermaidCode });
-
-    } catch (error) {
-        console.error('Generate error:', error);
-        res.status(500).json({ error: error.message || 'Failed to generate diagram' });
+    if (!description) {
+      return res.status(400).json({ error: 'Description is required' });
     }
+
+    if (!settings || !settings.provider) {
+      return res.status(400).json({ error: 'Provider settings are required' });
+    }
+
+    const provider = getProvider(settings);
+    const mermaidCode = await provider.generateDiagram(description);
+
+    res.json({ mermaidCode });
+  } catch (error) {
+    console.error('Generate error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate diagram' });
+  }
 });
 
 // Export diagram endpoint
 app.post('/api/export', async (req, res) => {
-    try {
-        const { mermaidCode, format } = req.body;
+  try {
+    const { mermaidCode, format } = req.body;
 
-        if (!mermaidCode) {
-            return res.status(400).json({ error: 'Mermaid code is required' });
-        }
+    if (!mermaidCode) {
+      return res.status(400).json({ error: 'Mermaid code is required' });
+    }
 
-        if (!['svg', 'png', 'jpeg'].includes(format)) {
-            return res.status(400).json({ error: 'Invalid format. Must be svg, png, or jpeg' });
-        }
+    if (!['svg', 'png', 'jpeg'].includes(format)) {
+      return res.status(400).json({ error: 'Invalid format. Must be svg, png, or jpeg' });
+    }
 
-        // Create HTML page with Mermaid diagram
-        const html = `
+    // Create HTML page with Mermaid diagram
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -112,81 +111,79 @@ ${mermaidCode}
 </html>
         `;
 
-        if (format === 'svg') {
-            // For SVG, we can extract it directly
-            const browser = await puppeteer.launch({
-                headless: true,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--disable-gpu'
-                ]
-            });
-            const page = await browser.newPage();
-            await page.setContent(html, { waitUntil: 'networkidle0' });
-            await page.waitForSelector('svg', { timeout: 10000 });
+    if (format === 'svg') {
+      // For SVG, we can extract it directly
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu'
+        ]
+      });
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.waitForSelector('svg', { timeout: 10000 });
 
-            const svg = await page.evaluate(() => {
-                const svgElement = document.querySelector('svg');
-                return svgElement ? svgElement.outerHTML : null;
-            });
+      const svg = await page.evaluate(() => {
+        const svgElement = document.querySelector('svg');
+        return svgElement ? svgElement.outerHTML : null;
+      });
 
-            await browser.close();
+      await browser.close();
 
-            if (!svg) {
-                throw new Error('Failed to generate SVG');
-            }
+      if (!svg) {
+        throw new Error('Failed to generate SVG');
+      }
 
-            res.setHeader('Content-Type', 'image/svg+xml');
-            res.setHeader('Content-Disposition', 'attachment; filename=diagram.svg');
-            res.send(svg);
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Content-Disposition', 'attachment; filename=diagram.svg');
+      res.send(svg);
+    } else {
+      // For PNG and JPEG, we need to take a screenshot
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu'
+        ]
+      });
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.waitForSelector('svg', { timeout: 10000 });
 
-        } else {
-            // For PNG and JPEG, we need to take a screenshot
-            const browser = await puppeteer.launch({
-                headless: true,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--disable-gpu'
-                ]
-            });
-            const page = await browser.newPage();
-            await page.setContent(html, { waitUntil: 'networkidle0' });
-            await page.waitForSelector('svg', { timeout: 10000 });
+      const element = await page.$('#diagram');
+      const screenshot = await element.screenshot({
+        type: format === 'png' ? 'png' : 'jpeg',
+        quality: format === 'jpeg' ? 90 : undefined,
+        omitBackground: format === 'png'
+      });
 
-            const element = await page.$('#diagram');
-            const screenshot = await element.screenshot({
-                type: format === 'png' ? 'png' : 'jpeg',
-                quality: format === 'jpeg' ? 90 : undefined,
-                omitBackground: format === 'png'
-            });
+      await browser.close();
 
-            await browser.close();
-
-            const contentType = format === 'png' ? 'image/png' : 'image/jpeg';
-            res.setHeader('Content-Type', contentType);
-            res.setHeader('Content-Disposition', `attachment; filename=diagram.${format}`);
-            res.send(screenshot);
-        }
-
-    } catch (error) {
-        console.error('Export error:', error);
-        res.status(500).json({ error: error.message || 'Failed to export diagram' });
+      const contentType = format === 'png' ? 'image/png' : 'image/jpeg';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename=diagram.${format}`);
+      res.send(screenshot);
     }
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({ error: error.message || 'Failed to export diagram' });
+  }
 });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok' });
+  res.json({ status: 'ok' });
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Open your browser and navigate to http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Open your browser and navigate to http://localhost:${PORT}`);
 });

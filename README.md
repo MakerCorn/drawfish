@@ -29,19 +29,41 @@ A powerful web application that uses AI to generate Mermaid diagrams from natura
 
 ## Installation
 
+### Standard Installation
+
 1. Clone or download this repository
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file (optional - you can also configure via UI):
+
 ```bash
 cp .env.example .env
 ```
 
 4. Edit `.env` with your provider settings (or configure via the UI settings dialog)
+
+### Docker Installation
+
+Run with Docker:
+
+```bash
+docker pull ghcr.io/yourusername/drawfish:latest
+docker run -p 3000:3000 \
+  -e OLLAMA_URL=http://host.docker.internal:11434 \
+  ghcr.io/yourusername/drawfish:latest
+```
+
+Or build locally:
+
+```bash
+docker build -t drawfish .
+docker run -p 3000:3000 drawfish
+```
 
 ## Usage
 
@@ -52,17 +74,28 @@ npm start
 ```
 
 Or for development with auto-reload:
+
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:3000`
 
+### Development Scripts
+
+- `npm run lint` - Run ESLint to check code quality
+- `npm run lint:fix` - Automatically fix linting issues
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
+- `npm run validate` - Run all validation checks (lint + format)
+- `npm run precommit` - Run pre-commit validation
+
 ### Configuring AI Providers
 
 Click the settings button (⚙️) in the top right to configure your AI provider:
 
 #### Ollama
+
 1. Install Ollama: `https://ollama.ai`
 2. Pull a model: `ollama pull llama2`
 3. Configure in settings:
@@ -70,6 +103,7 @@ Click the settings button (⚙️) in the top right to configure your AI provide
    - Model: `llama2` (or your preferred model)
 
 #### LM Studio
+
 1. Install LM Studio: `https://lmstudio.ai`
 2. Download and load a model
 3. Start the local server in LM Studio
@@ -78,6 +112,7 @@ Click the settings button (⚙️) in the top right to configure your AI provide
    - Model: Your loaded model name
 
 #### Azure OpenAI
+
 1. Create an Azure OpenAI resource
 2. Deploy a model (e.g., GPT-3.5 or GPT-4)
 3. Configure in settings:
@@ -86,6 +121,7 @@ Click the settings button (⚙️) in the top right to configure your AI provide
    - Deployment Name: Your deployment name
 
 #### Amazon Bedrock
+
 1. Enable Amazon Bedrock in your AWS account
 2. Request access to models (e.g., Claude)
 3. Configure in settings:
@@ -95,6 +131,7 @@ Click the settings button (⚙️) in the top right to configure your AI provide
    - Model ID: e.g., `anthropic.claude-v2`
 
 #### Google Vertex AI
+
 1. Create a GCP project
 2. Enable Vertex AI API
 3. Create a service account and download credentials
@@ -126,6 +163,7 @@ Click the settings button (⚙️) in the top right to configure your AI provide
 ### Exporting Diagrams
 
 Click the export buttons (SVG, PNG, or JPEG) to download the diagram in your preferred format:
+
 - **SVG**: Vector format, best for editing and scaling
 - **PNG**: Raster format with transparency
 - **JPEG**: Raster format, smaller file size
@@ -170,9 +208,11 @@ The application supports all Mermaid diagram types:
 ## API Endpoints
 
 ### POST /api/generate
+
 Generate a Mermaid diagram from a description.
 
 **Request:**
+
 ```json
 {
   "description": "Create a flowchart...",
@@ -187,6 +227,7 @@ Generate a Mermaid diagram from a description.
 ```
 
 **Response:**
+
 ```json
 {
   "mermaidCode": "flowchart TD\n    A[Start] --> B[End]"
@@ -194,9 +235,11 @@ Generate a Mermaid diagram from a description.
 ```
 
 ### POST /api/export
+
 Export a Mermaid diagram to SVG, PNG, or JPEG.
 
 **Request:**
+
 ```json
 {
   "mermaidCode": "flowchart TD\n    A[Start] --> B[End]",
@@ -208,9 +251,11 @@ Export a Mermaid diagram to SVG, PNG, or JPEG.
 Binary file data (image)
 
 ### GET /api/health
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "ok"
@@ -220,31 +265,37 @@ Health check endpoint.
 ## Troubleshooting
 
 ### Ollama connection failed
+
 - Ensure Ollama is running: `ollama serve`
 - Check the URL is correct: `http://localhost:11434`
 - Verify the model is installed: `ollama list`
 
 ### LM Studio connection failed
+
 - Ensure LM Studio local server is running
 - Check the port number (default: 1234)
 - Verify a model is loaded in LM Studio
 
 ### Azure OpenAI errors
+
 - Verify your endpoint URL format
 - Check API key is valid
 - Ensure deployment name matches your Azure deployment
 
 ### Bedrock errors
+
 - Verify AWS credentials are correct
 - Check model access has been granted in AWS console
 - Ensure correct region is configured
 
 ### Vertex AI errors
+
 - Check GOOGLE_APPLICATION_CREDENTIALS environment variable
 - Verify service account has necessary permissions
 - Ensure Vertex AI API is enabled in GCP
 
 ### Diagram rendering fails
+
 - Check Mermaid code syntax
 - Look for error messages in browser console
 - Try simplifying the diagram
@@ -253,6 +304,52 @@ Health check endpoint.
 
 MIT
 
+## CI/CD
+
+This project uses GitHub Actions for automated workflows:
+
+### Docker Build and Push
+
+- Triggers on push to `main` or `develop` branches
+- Runs linting and validation
+- Builds multi-platform Docker images (amd64, arm64)
+- Pushes to GitHub Container Registry
+- Creates image tags for branches, commits, and semantic versions
+
+### Release Workflow
+
+- Triggers on version tags (e.g., `v1.0.0`)
+- Creates GitHub releases with changelog
+- Builds and publishes Docker images
+- Generates release artifacts
+
+To create a release:
+
+```bash
+# Update version and CHANGELOG.md
+git add .
+git commit -m "chore: prepare release v1.1.0"
+git tag -a v1.1.0 -m "Release version 1.1.0"
+git push origin main --tags
+```
+
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+
+- **MAJOR** version: Breaking changes
+- **MINOR** version: New features (backward compatible)
+- **PATCH** version: Bug fixes (backward compatible)
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Before submitting:
+
+1. Run `npm run validate` to ensure code quality
+2. Update CHANGELOG.md with your changes
+3. Write clear commit messages following conventional commits
+4. Test your changes thoroughly
