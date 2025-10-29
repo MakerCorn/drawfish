@@ -52,10 +52,17 @@ cp .env.example .env
 Run with Docker:
 
 ```bash
-docker pull ghcr.io/yourusername/drawfish:latest
+docker pull ghcr.io/makercorn/drawfish:latest
 docker run -p 3000:3000 \
   -e OLLAMA_URL=http://host.docker.internal:11434 \
-  ghcr.io/yourusername/drawfish:latest
+  ghcr.io/makercorn/drawfish:latest
+```
+
+Or use a specific version:
+
+```bash
+docker pull ghcr.io/makercorn/drawfish:1.1.0
+docker run -p 3000:3000 ghcr.io/makercorn/drawfish:1.1.0
 ```
 
 Or build locally:

@@ -15,7 +15,7 @@ Thank you for your interest in contributing to DrawFish! This document provides 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/drawfish.git
+git clone https://github.com/MakerCorn/drawfish.git
 cd drawfish
 ```
 

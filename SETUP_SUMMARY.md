@@ -251,8 +251,8 @@ drawfish/
 
 3. **Use published image**:
    ```bash
-   docker pull ghcr.io/yourusername/drawfish:latest
-   docker run -p 3000:3000 ghcr.io/yourusername/drawfish:latest
+   docker pull ghcr.io/makercorn/drawfish:latest
+   docker run -p 3000:3000 ghcr.io/makercorn/drawfish:latest
    ```
 
 ## Best Practices Implemented
